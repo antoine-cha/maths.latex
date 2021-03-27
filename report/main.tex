@@ -1,0 +1,155 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[all]{xy}
+\usepackage[pdf]{graphviz}
+
+\title{Transformers}
+\author{Antoine Chassang}
+\date{March 2021}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\begin{document}
+
+\maketitle
+
+\section{Statistics}
+\subsection{Random sample}
+A random sample is a collection of $n$ random variables $X_1,\dots, X_n$ that are independent and
+identically distributed with $X$.
+
+\subsection{Estimation}
+The bias of an estimator $\hat{\theta}$ of a parameter $\theta$ is
+\begin{align*}
+    Bias(\hat{\theta}) = E[\hat{\theta}] - \theta
+\end{align*}
+An estimator is said unbiased if $Bias(\hat{\theta}) = 0$ .
+
+\subsection{Mean}
+The mean is $\mu = E[X]$ . \\
+The sample mean is $\bar{X} = \frac{1}{n} \sum_{i=1}^{n}{X_i}$ . \\
+It is unbiased, i.e. $E[\bar{X}] = \mu$ .
+\subsubsection{Central limit theorem}
+Let us have a random sample $X_1,\dots, X_n$ following a mean $\mu$ and a variance $\sigma^2$, then we have
+\begin{align*}
+    &\bar{X} \underset{n \to +\infty}{\sim} \mathcal{N}(\mu, \frac{\sigma}{\sqrt{n}})
+\end{align*}
+
+\subsection{Variance}
+The variance is $Var[X] = E[(X - \bar{X})^2]$. \\
+The sample variance is $s^2 = \hat{\sigma}^2 = \frac{1}{n-1} \sum_{i=1}^{n}{(X_i - \bar{X})^2}$ \\
+It is unbiased, i.e. $E[\hat{\sigma}^2] = \sigma^2$.
+
+\subsubsection{Chi-squared relation with sample variance}
+Let $s^2$ be the sample variance,
+\begin{align*}
+    \frac{s^2(n-1)}{\sigma^2} \sim \chi_{n-1}^2
+\end{align*}
+
+\subsection{Confidence interval}
+A confidence interval $CI_{1-\alpha}$ with confidence level $1-\alpha$ of a true parameter $\theta$
+such that
+\begin{align*}
+    P(\theta \in CI_{1-\alpha}) = 1 - \alpha
+\end{align*}
+
+\subsection{Hypothesis testing}
+Let $T$ be the test statistics and $R$ the rejection region.
+A test statistic is a statistic (a quantity derived from the sample) used in statistical hypothesis testing.
+A hypothesis test is typically specified in terms of a test statistic, considered as a numerical summary
+of a dataset that reduces the data to one value that can be used to perform the hypothesis test
+
+\subsubsection{Type I error}
+The type I error, often noted $\alpha$, also called "false alarm" or significance level is the probability
+of rejecting the null hypothesis when the null hypothesis is true.
+\begin{align*}
+    \alpha = P(T \in R\; |\; H_0\; true)
+\end{align*}
+
+\subsubsection{Type II error}
+The type II error, often noted $\beta$ also called "missed alarm" is the probability
+of not rejecting the null hypothesis when the null hypothesis is false.
+\begin{align*}
+    \alpha = P(T \notin R\; |\; H_0\; false)
+\end{align*}
+
+\subsubsection{p-value}
+The $p$-value is the probability under the null hypothesis of a having a test statistic $T$ at
+least as extreme as the one that we observed $T_0$:
+\begin{align*}
+    \text{(left-sided)} \quad & \text{p-value} = P(T \leq T_0\; |\; H_0\; true) \\
+    \text{(right-sided)}\quad & \text{p-value} = P(T \geq T_0\; |\; H_0\; true) \\
+    \text{(two-sided)}  \quad & \text{p-value} = P(|T| \geq |T_0|\; |\; H_0\; true) \\
+\end{align*}
+
+\subsubsection{Non-parametric test}
+A non-parametric test is a test where we do not have any underlying assumption regarding the
+distribution of the sample.
+
+\subsection{Estimation}
+The observed data is $D = (X_1, \dots, X_n)$ . \\
+The posterior is $P(\theta\, | \, D)$ . \\
+The prior is $P(\theta)$ . \\
+The likelihood is $P(X\; |\; \theta)$ . \\
+Using Bayes rule $P(\theta | D) = \frac{P(D|\theta)P(\theta)}{P(D)}$,
+so $P(\theta | D) \propto P(D|\theta)P(\theta)$ .
+
+\subsubsection{Maximum likelhood estimation (MLE)}
+ The maximum likelihood estimation chooses $\theta$ that maximimizes the probability of observed data:
+\begin{align*}
+    \hat{\theta}_{MLE} = arg\,\underset{\theta}{max}\; P(X_1,\dots,X_n\, |\, \theta)
+\end{align*}
+
+\subsubsection{Maximum a posteriori estimation (MAP)}
+The MAP estimation chooses $\theta$ that is most probable given observed data $D$ and prior belief
+$P(\theta)$. \\
+
+\begin{align*}
+    \hat{\theta}_{MAP} & = arg\,\underset{\theta}{max}\; P(\theta | D) \\
+                       & = arg\,\underset{\theta}{max}\; P(D | \theta) P(\theta) \\
+\end{align*}
+
+
+
+\section{Architecture}
+There is a theory which states that if ever anyonek discovers exactly what the Universe is for and why it is here, it will instantly disappear and be replaced by something even more bizarre and inexplicable.
+There is another theory which states that this has already happened.
+\subsection{Definition}
+\begin{align*}
+    Let &\\
+        &X \in \mathbb{R}^d, \\
+        &Y \in \mathbb{R}^{d_{model}} \\
+        &W_K, W_Q, W_V \in \mathbb{R}^{d \times d_{model}} \\
+        &q = W_Q X, \quad k = W_K X, \quad v = W_V X \\
+        &Y = softmax(\frac{qk^T}{\sqrt{d}})v \label{eq:transformer} \tag{1}
+\end{align*}
+
+% \entrymodifiers={++[o][F-]}
+% \SelectTips{cm}{}
+% \xymatrix @-1pc {
+%     *\txt{X} \ar[r]
+%     & X \ar@(r,u)[]_{bonjour} \ar[r]_{abc}
+%     & \txt{*} \ar[r]^b \ar@(r,u)[]_{abc}
+%     & \txt{*} \ar[r]^b \ar@(r,u)[]_{abc}
+%     & \txt{*} \ar[r]^b \ar@(r,u)[]_{abc}
+% }
+% \digraph{abc}{
+%       rankdir=LR;
+%       a -> b -> c;
+% }
+
+
+
+\section{Gradients}
+Let's compute the gradients analytically to understand how they will flow through a model when
+transformers blocks are stacked in a deep neural network.
+We will start from the formulas in \eqref{eq:transformer}
+
+
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
