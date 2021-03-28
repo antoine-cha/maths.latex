@@ -1,0 +1,67 @@
+%! TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+% ============================================================ %
+% ============================================================ %
+\chapter{Multiple view geometry}
+This chapter is heavily inspired from \cite{multi-view-geo}.
+
+% ============================================================ %
+% ============================================================ %
+\section{Introduction}
+\subsection{Definitions}
+A point in Euclidean 2-space is represented by $(x, y)$ we may add an extra coordinate to obtain the
+triple $(x,y,1)$, that we declare to represent the same point. \\
+For any non-zero $k$, $(kx, ky, k)$ represents the same point as $(x,y,1)$. These are called \textbf{the
+homogeneous coordinates of the point}. Formally, points are represented by equivalence classes of
+coordinates triples.\\
+$(x, y, 0)$ represents the points at infinity. \\
+A linear transformation of Euclidean space $\mathbb{R}^n$ is represented by a $n \times n$ matrix
+multiplication applied to the coordinates of the point. \\
+A projective transformation of projective space $\mathbb{P}^n$ is represented by a $(n+1)\times(n+1)$
+matrix multuplication applied to the homogeneous coordinates. \\
+In Euclidean (or affine) geometry, infinity points remain at infinity after a linear tranform. In projective
+geometry, infinity may not be preserved. \\
+\\
+In computer vision, the projective space is used as a convenient way of representing the world:
+3D projective space for the real 3D world, and 2D projective space for 2D points in images. \\
+
+\paragraph{Projective space}
+A projective space may be viewed as the extension of a Euclidean space with points at $\infty$. \\
+In a real case, a point at $\infty$ completes a line in a topologically closed curve. In igher dimensions,
+all the points at $\infty$ form a projective subspace of $n-1$ dimensions. \\
+\textbf{Example:} in 2D,  the ensemble of points at $\infty$  have homogeneous coordinates like
+$(x, y, 0)$.  These projective points are each uniquely defined by $\dfrac{x}{y}$, where $y=0$ gives the
+limit $(x, 0, 0)$ and $y=\infty$ gives the points $(0, y, 0)$. There exists a bijection from $\mathbb{R^+}$ to
+the set of $\infty$ points in 2D. So this set is 1D.
+\paragraph{Computer vision}
+In computer vision, the origin will be the camera. Thus, the homogenous points are the lines going from the camera
+to the X and beyond. For the screen at various distance, we consider various $w$ in $(wx, wy, w)$.
+
+
+\subsection{Affine and euclidean geometry}
+\begin{displayquote}
+    \enquote{The points at infinity in the world plane correspond to a real horizon line in the image,
+        and parallel lines in the world correspond to lines meeting at the horizon.}
+\end{displayquote}
+
+
+
+
+
+\section{Single and two-view geometry}
+\subsection{Single view gemometry}
+A perspective (central) projection cameraHartley04c is represented by a 3x4 matrix. \\
+The most general perspective transformation between 2 planes (a world plane and the image plane, or
+2 planes induced by a world plane) is a \textbf{plane projective transformation}.This can be computed from
+the correspondence of 4+ points. \\
+The epipolar geometry between 2 views is represented by \textbf{the fundamental matrix}. This can be computed
+from 7+ points.
+
+
+
+
+
+
+\end{document}

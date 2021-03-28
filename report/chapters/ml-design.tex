@@ -1,0 +1,221 @@
+%! TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+% ============================================================ %
+% ============================================================ %
+\chapter{ML design}
+% ============================================================ %
+% ============================================================ %
+
+\section{Principles}
+\subsection{Characteristics of ML systems}
+There are key differences between Machine Learning during the training phase and during the prediction phase.
+By design, these 2 phases will face different challenges. So the systems will be designed very differently.
+\textbf{But code should be shared between the 2 phases to avoid model misuse.}
+\begin{center}
+    \begin{tabular}{ |c|c|}
+        \hline
+        Phase & Key aspects \\
+        \hline
+        Training & Offline, model agnostic, iteration speed \\
+        \hline
+        Prediction & Real-time, production systems, scale, observability \\
+        \hline
+    \end{tabular}
+
+\end{center}
+
+\section{Challenges}
+This section is a summary of \cite{tech-debt}.
+
+\subsection{Complex models erode boundaries}
+\begin{center}
+    \begin{tabular}{ |c|p{10cm}|}
+        \hline
+        Challenge & Defintion \\
+        \hline
+        \hline
+        Entanglement & ML systems mix signals together. Isolated improvements are impossible. \\
+                     & CACE: Changing Anything Changes Everything \\
+        \hline
+        Correction Cascade & When chaining models, we create dependencies (e.g. multiple heads). \\
+                           & This can create an improvement deadlock: improving any component leads to
+                           system-level detriments. \\
+        \hline
+        Undeclared consumers & Creates hidden tight coupling of model to other parts of the stack.
+            Changes to the model will impact other parts of the stack in unintended ways.
+            This increases the cost and difficulty of making any changes to the model. \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\subsection{Data dependencies cost more than code dependencies}
+
+\subsubsection{Unstable data dependencies}
+ Input signal may not be stable: output of other ML model that could
+be updated, data-dependent look-up table. Also, owner of the input signal may decide to change
+it. To mitigate, create a versioned copy of the input signal, e.g. freeze the input mapping, model
+and use it until all consumers have upgraded to the new input. \\
+
+\subsubsection{Underutilized data dependencies}
+These are input signals that provide very little value
+but by using them, the model is vulnerable to their change, whereas they could be remove
+without detriment
+\begin{center}
+    \begin{tabular}{ |c|p{10cm}|}
+        \hline
+        Features type & Defintion \\
+        \hline
+        \hline
+        Legacy features & Feature is included early in development, but is later made redundant. \\
+        \hline
+        Bundled features & A group of features is evaluated and found to be benefitial. All features
+            are included without verifying if they are all relevant. \\
+        \hline
+        $\epsilon$-features & Feature that adds very little improvement (i.e. benchmark hacking) \\
+        \hline
+        Correlated features & 2 features are strongly correlated, but ML model won't understand it.
+            This results in brittleness if the correlation later changes.\\
+        \hline
+    \end{tabular}
+\end{center}
+
+Underutilized features can be detected via exhaustive leave-one-feature-out evaluations. These should
+be run regularly to identify and remove unnecessary features.
+
+\subsection{Feedback loops}
+\subsubsection{Direct feedback loop}
+A model may directly influence the selection of its own future training data.
+
+\subsubsection{Hidden feedback loop}
+When 2 systems influence each other indirectly. E.g. 2 models defining the items to show in a Web
+page. Changing one model will change the user's behaviour, which is most likely one input signal
+to the 2nd model. \\
+Other example, competing models on the stock market. Any modification of one model will change the
+behaviour of the competing models as a consequence. Note that the introduced modification could be
+a bug.
+
+\subsection{ML-system anti-patterns}
+\subsubsection{Glue code}
+95\% of the code in a mature ML system is glue code, 5\% is machine learning code. Glue code is costly
+in the long term because it tends to freeze a system to the peculiarities of a specific package. Testing
+alternatives may become prohibitively expensive. \\
+A common strategy for combating glue code is to wrap black-box packages into common APIs.
+
+\subsubsection{Pipeline jungles}
+Often appears in data preparation, these can evolve organically, as new signals are identified and new
+sources added incrementally. Without care, the system may become a jungle of scrapes, joins and sampling steps
+, often with intermediate files output. Detecting errors and recovering from failures will be difficult
+and costly, \\
+Avoid by thinking holistically baout data collection and features extraction. Scraping and redesigning
+a pipeline jungle is a major investment, but it can dramatically reduce ongoing costs and speed further
+innovation.
+
+\subsubsection{Dead experimental codepaths}
+As a consequence of glue code and pipeline jungles, it becomes attractive in the short term to
+experiment alternative methods by implementing experimental codepaths as conditional branches within
+the main production code. Over time, these accumulated paths create a growing debt due to the increasing
+difficulty of maintaining backward compatibility and exponential cyclomatic complexity.\\
+Avoid by periodically re-examining the experimental branch and remove the unused ones.
+
+\subsubsection{Abstraction debt}
+Due to a lack of strong abstractions in ML, it is too easy to blur the line between the components.
+
+\subsubsection{Common smells}
+\begin{center}
+    \begin{tabular}{ |c|p{10cm}|}
+        \hline
+        Smell & Definition \\
+        \hline
+        \hline
+        Plain-old-data type smell& ML outputs do not come with metadata to explain their nature.
+            E.g.: is that p(x) or 1-p(x)? Is this a log?  \\
+        \hline
+        Multiple-language smell & Using multiple languages increases the cost of effective testing
+            and increases difficulty of transferring ownership to other individuals.\\
+        \hline
+        Prototype smell & The project relies on a protoyping environment. Full-scale system may be
+            brittle, difficult to change. In times of pressure, this prototyping environment will be
+            pushed to production. What's more, results at small scale rarely reflect reality at
+            full scale.\\
+        \hline
+    \end{tabular}
+\end{center}
+
+\subsection{Fighting configuration debt}
+ML systems come with many parameters that can be configured. Input signals may be changed, composed
+out of many input signals that may also change, or be disabled. As a result, signals are created from
+complex rules that are hard to track. \\
+To limit configuration debt, follow these principles:
+\begin{itemize}
+    \item It should be easy to specify a configuration as a small change from a previous configuration.
+    \item It should be hard to make manual errors, omissions or oversights.
+    \item It should be easy to see, visually, the difference in configuration between 2 models.
+    \item It should be easy to automatically assert and verify basic facts about the configuration:
+        number of features used, transitive closure of data dependencies, ...
+    \item Configurations should undergo a full code review and be checked into a repository.
+\end{itemize}
+
+\subsection{Dealing with changes in the external world}
+\subsubsection{Fixed thresholds in dynamic systems}
+It is often needed to pick a \textbf{decision threshold}. Usually it is manually selected to
+obtain a good trade-off out of a list of thresholds. When input data changes, the threshold may be
+obsolete.\\
+To mitigate the problem, we can regurlarly tune the thresholds on held out validation data.
+
+\subsubsection{Monitoring and testing}
+Comprehensive live monitoring of system behavior in real time combined with automated response
+is critical for long-term system reliability.
+Following points should be monitored:
+\begin{itemize}
+    \item \textbf{Prediction bias} Verify that the prediction distribution is stable. Changes in this
+        metrics are often indicative of input data changes. Slicing prediction bias isolate issues quickly,
+        and can be used for automated alerting.
+    \item \textbf{Action limits} When the system can take actions, we can enforce action limits as a sanity
+        check. These limits should be broad enough not to trigger spuriously.
+    \item \textbf{Up-stream producers} Up-stream processes should be thoroughly monitored, tested and
+        routinely meet a service-level objective that takes the downstream ML system needs into account.
+        Any up-stream alerts must be propagated to the control pane of the ML system to ensure its
+        accuracy.
+\end{itemize}
+
+\subsection{Other areas of ML-related debt}
+\subsubsection{Data testing debt}
+Testing input data is critical to a well-functioning system. It can be basic sanity check or more
+sophisticated tests that monitor changes in input distribution.
+
+\subsubsection{Reproducibility debt}
+As scientists, it is important we can re-run experiments and get similar results. But in the case
+of real-world systems, it is difficult.
+
+\subsubsection{Process management debt}
+Mature systems contain dozens or hundreds of models running simultaneously. This raises a wide range
+of important problems, such as updating many configurations safely and automatically, managing and assigning
+resources among models, how to visualize and detect blockages in the flow of data. Developing tooling
+to aid recovery from production incidents is also critical. \textbf{An important system-level smell
+to avoid is common processes with many manual steps.}
+
+\subsubsection{Cultural debt}
+Research and development goes together. It is important to create team cultures that reward deletion
+of features, reduction of complexity, improvements in reproducibility, stability, adn monitoring to the
+same degree that improvements in accuracy are valued.
+
+\subsection{Conclusion: measuring debt and paying it off}
+Measuring debt is complicated, a few useful questions to consider are:
+\begin{itemize}
+    \item How easy can an entirely new algorithmic approach be tested at full scale?
+    \item What is the transitive closure of all data dependencies?
+    \item How precisely can the impact of a new change to the system be measured?
+    \item Does improving one model or signal degrade others?
+    \item How quickly can new members of the team be brought up to speed?
+\end{itemize}
+\\
+The paper sums it up extremely well:
+\begin{displayquote}
+    \enquote{Paying down ML-related technical debt requires a specific commitment, which can often only
+        be achieved by \textbf{a shift in team culture}. Recognizing, prioritizing, and rewarding this
+        effort is important for the long term health of successful ML teams.}
+\end{displayquote}
+
+\end{document}
