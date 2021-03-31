@@ -52,6 +52,39 @@ to the X and beyond. For the screen at various distance, we consider various $w$
 
 \section{Single and two-view geometry}
 \subsection{Single view gemometry}
+\paragraph{Perspective projection}
+The Z-axis is the optical axis. So when, when $z$ increases, the image is further away from the camera.
+
+\begin{equation}
+    \begin{pmatrix} x \\ y \\ f \end{pmatrix}
+    =
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+    \end{bmatrix}
+    \begin{pmatrix} X \\ Y \\ Z \\ 1 \end{pmatrix}
+\end{equation}
+where a $3\times4$ \textbf{projection matrix} represents a map from 3D to 2D. $f$ the scale factor
+defines the distance on the z-axis from the camera. \\
+The left hand part is in \textbf{the image space}, the right hand in the \textbf{real world}.
+
+\paragraph{Internal camera parameters}
+\begin{equation}
+    \textbf{\mathrm{x}} =
+    \begin{pmatrix} x \\ y \\ 1 \end{pmatrix}
+    = \frac{1}{f}
+    \begin{bmatrix}
+        \alpha_x &  & x_0 \\
+                 & \alpha_y & y_0 \\
+                 &  & 1 \\
+    \end{bmatrix}
+    \begin{pmatrix} x_cam \\ y_cam \\ f \end{pmatrix}
+\end{equation}
+
+
+
+\subsection{Details}
 A perspective (central) projection cameraHartley04c is represented by a 3x4 matrix. \\
 The most general perspective transformation between 2 planes (a world plane and the image plane, or
 2 planes induced by a world plane) is a \textbf{plane projective transformation}.This can be computed from
@@ -60,6 +93,7 @@ The epipolar geometry between 2 views is represented by \textbf{the fundamental 
 from 7+ points.
 
 
+\section{RANdom SAmple Consensus (RANSAC)}
 
 
 
