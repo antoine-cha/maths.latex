@@ -1,0 +1,49 @@
+%! TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+% ============================================================ %
+% ============================================================ %
+\chapter{Deep learning}
+% ============================================================ %
+% ============================================================ %
+
+\section{pix2pix}
+From the paper "Image-to-Image Translation with Conditional Adversarial Networks" \{pix2pix}.
+Uses conditional GANs to create images from images (image translation).
+
+
+\subsection{Introduction}
+At the core of image translation is the capability to judge the quality of a translation. By using a GAN,
+we can learn the loss function as well as the mapping. \\
+L2 loss is minimized by averaging all plausible outputs, causing blurry outputs, so they prefer L1.
+Note that L1 loss is minimized by selecting the median. \\
+Generator is U-net, discriminator is PatchNet.
+
+\subsection{Method}
+Conditional GANs learn a mapping $G: \{x, z\} \rightarrow y$ where $x$ is the observed input and $z$
+is a random noise vector. \\
+\textbf{TODO} understand why conditioning the discriminator is important. \\
+The objective of a cGAN is
+\begin{equation}
+    \mathcal{L}_{cGAN}(G, D) = \mathbb{E}_{x,y}[log(D(x,y))] + \mathbb{E}_{x,z}[log(1-D(x, G(x, z)))]
+\end{equation}
+where $G$ tries to minimize against $D$ that tries to maximize it, i.e.
+\begin{equation}
+    G^* = \arg \min_G \max_D \mathcal{L}_{cGAN}(G, D)
+\end{equation}
+The non-conditional GAN is when the discriminator does not observe $x$
+\begin{equation}
+    \mathcal{L}_{GAN}(G, D) = \mathbb{E}_{x,y}[log(D(y))] + \mathbb{E}_{x,z}[log(1-D(x, G(x, z)))]
+\end{equation}
+
+When introducing L1
+\begin{align}
+    &\mathcal{L}_{L1}(G) = \mathbb{E}_{x,y,z}[\|y - G(x, z)\|_1] \\
+    &\mathcal{L}_{pix2pix}(G, D) = \mathcal{L}_{cGAN}(G, D) + \lambda \mathcal{L}_{L1}(G)
+\end{align}
+
+
+
+
+\end{document}
