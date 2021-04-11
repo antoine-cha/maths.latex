@@ -103,7 +103,55 @@ $P(\theta)$. \\
 \end{align*}
 
 \section{Bias-variance in estimation}
+
 \section{Markov chains}
+
+A \textbf{stochastic process} $X = \{X(t): t \in T\}$ is a collection of random variables. $X(t)$ is
+called the \textbf{state} of the process at $t$. \\
+
+A discrete time process $X = \{X(t): t \in \mathbb{N}\}$ is called a \textbf{Markov chain}
+$\Leftrightarrow$
+\begin{align*}
+    & P(X_t=a_T | X_{t-1} = a_{t-1}, ..., X_0 = a_0) = P(X_t = a_t | X_{t-1} = a_{t-1}) \\
+    & \forall t \in \mathbb{N}^*, \quad \forall a_i \in A \\
+\end{align*}
+A Markov chain is called \textbf{homogeneous} $\Leftrightarrow$ its transition probabilities are
+independent of $t$
+\begin{align*}
+    P_{i,j} = P(X_t = a_j | X_{t-1} = a_i)
+\end{align*}
+A Markov chain is called \textbf{finite} $\Leftrightarrow$ its set of values is a finite set.
+In such a case, we can determine the transition matrix
+\begin{align*}
+    P = (P_{i, j}) =
+    \begin{bmatrix}
+        P_{0,0}  & P_{0,1} & ...\\
+        P_{1, 0} & P_{1,1} & ...\\
+        ...      & ...     & ...\\
+    \end{bmatrix}
+\end{align*}
+
+We define the \textbf{m-step transition probability} as
+\begin{align*}
+    &P^n_{i,j} = P(X_{t+n} = a_j | X_{t} = a_i) \\
+    &(P^n_{i, j}) = P^n
+\end{align*}
+
+\section{Stationarity}
+Let $\{ X_t \}$ be a stochastic process, \\
+let $F_X(x_{t_1}, ..., x_{t_n})$ represent the cumulative distribution function \\
+$\{ X_t \}$ is said to be \textbf{strictly stationary, strongly stationary or strict-sense stationary if}
+\begin{align*}
+    &F_X(x_{t_1+\tau}, ..., x_{t_n+\tau}) = F_X(x_{t_1}, ..., x_{t_n}) \\
+    &\forall \tau, t_1, ..., t_n \in \mathbb{R}, \forall n \in \mathbb{N}
+\end{align*}
+
+
+
+
+
+
+
 \section{PCA, ICA}
 \subsection{Principal Component Analysis}
 In PCA, the basis functions emerge as the eigenvectors of the covariance matrix over observations of
