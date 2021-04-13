@@ -219,3 +219,249 @@ The paper sums it up extremely well:
 \end{displayquote}
 
 \end{document}
+
+\section{Systems design interview}
+\subsection{Requirements clarification}
+Ask clarification questions to the interviewer, this shows how you handle ambiguity. The interviewer
+is also starting to gauge your seniority level. There are 4 main axes for requirements to clarify:
+\begin{center}
+    \begin{tabular}{ |c|p{10cm}|}
+        \hline
+        Users / Customers & Who will use the system? How will it be used?\\
+        \hline
+        Scale (read \& write) & How many read queries per second?
+            How much data is queried per request? Can there be spikes in the traffic?  \\
+        \hline
+        Performance & Expected write-to-read data delay? Expected p99 latency for read?\\
+        \hline
+        Cost & Should we minimize development cost? Maintenance cost?\\
+        \hline
+    \end{tabular}
+\end{center}
+
+There are 2 types of requirements: \textbf{functional} requirements are the definitions of the API and
+what it will do. \textbf{Non-functional} requirements are system qualities: fast, fault-tolerant,
+secure... \\
+For functional requirements, phrase with simple sentences what the system should do. Then, start iterating
+over the very key API endpoints (e.g. \verb|countViewEvent(videoId)| $\to$
+\verb|coutEvent(videoId, eventType)|, ...). This helps identify names of APIs, input parameters.\\
+For non-functional requirements,
+
+\subsection{High-level architecture}
+Start with describing the system with high-level components (e.g. DB, processing service, query service...).
+Interviewer will be an expert in the field, so he will have questions already. To avoid being drown in
+questions, we have to drive the discussion. So where to start? Start with the \textbf{outside pieces}:
+\textbf{the data}. We have to define a data model.
+\subsubsection{Data model}
+First, deifne \textbf{what we store}. This directly leads to questions like: should I store raw data
+or aggregated data? There are pros \& cons for each approach, and we should discuss them. \\
+
+\paragraph{Where do we store the data?}
+We need to evaluate DB systems against non-functional requirements: scalability, performance and
+availability:
+\begin{itemize}
+    \item How to scale \textbf{reads} and \textbf{writes} ?
+    \item How to make both \textbf{reads} and \textbf{writes} fast?
+    \item How \textbf{not to lose data} in case of hardware faults and network partitions?
+    \item How to achieve \textbf{strong consistency}? What are the trade-offs? (CAP theorem)
+    \item How to \textbf{recover data} in case of an outage?
+    \item How to ensure \textbf{data security}?
+    \item How to make it \textbf{extensible} for data model changes in the future?
+    \item Where to run (cloud VS on-premises data centers)?
+    \item How much money will it cost?
+\end{itemize}
+
+\paragraph{How do we store the data?}
+In SQL we think in terms of nouns: we define the tables from the nouns of entities. In NoSQL, we think
+in terms of queries that will be executed. \\
+There are 4 types of NoSQL databases: column, document, key-value and graph. \\
+
+\subsection{Data aggregation basics}
+\paragraph{Should we pre-aggregate data in the processing service?} Doing so allows us to limit the
+number of queries to the DB. Processing service may push to DB every 1 or 2 seconds only. Data is
+in-memory so R/W is very fast.\\
+
+\paragraph{Push or pull?}
+Pre-aggregation can create data loss, as the processing service contains some state. \textbf{Push}
+means that we push data to the processing service. \textbf{Pull} means that we pull data from some
+source (e.g. a message queue). If processing machine crashes we may still have events in the source.
+
+\paragraph{Checkpointing}
+Events are stored sequentially in the queue. This allows to define an offset. Instead of dumping the
+message after a read, we simply increment the offset. When an offset limit is reached, we will sync
+in-memory with the DB, dump read messages, and reset the offset. That way in case of crash,
+a new machine can just start processing from the MQ as is (default state: offset=0).
+
+\paragraph{Partitioning}
+Use a hash based on input data to identify the queue to push the message to. That way, each processing
+machine will process the events for specific elements and we will avoid maintaining a very large
+in-memory state. This allows us to parallelize events processing.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm]{assets/processing-service.png}
+    \caption{Processing service detailed design \cite{sys-design-interview-yt}}
+\end{figure}
+
+\subsection{Data ingestion path}
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm]{assets/ingestion-path.png}
+    \caption{Ingestion path \cite{sys-design-interview-yt}}
+\end{figure}
+
+\subsubsection{Partitioner service client}
+\paragraph{Blocking VS non-blocking I/O}
+Blocking = 1 thread per request. Non-blocking = 1 thread for multiple requests. Non-blocking increases complexity, blocking system is easy to debug. We can track progress by looking in to the thread stack. Exceptions
+pop up the stack and it is easy to catch and handle them. We can use thread local variables.
+
+\paragraph{Buffering and batching}
+Combine events into batches that are sent altogether to the partitioner service. But this introduces
+complexity, e.g. when some events fail within a batch.
+
+\paragraph{Timeouts}
+Request timouts happens when request processing takes too much time, and client is not willing to wait
+any longer. To choose the timeout value, analyze percentiles $\to$ how many \% of the requests will
+time out?
+
+\paragraph{Retries}
+Retry when timed out, choose a different machine in case the original was faulty. To avoid overloading
+the machines, use \textbf{exponential backoff} and \textbf{jitter}. Exponential backoff means waiting
+more time with every retry, jitter adds randomness to spread out the load.
+
+\paragraph{Circuit breaker}
+Stops a client from repeatedly requesting. Simply calculate how many requests have failed recently
+and if threshold is exceeded we stop calling a downstream service. This adds complexity and makes
+debugging harder.
+
+\subsubsection{Load balancer}
+Distributes data traffic between multiple servers.
+\paragraph{Software VS hardware load balancing}
+\textbf{Hardware load balancing}: powerful machines with many CPUs, memory, optimized to handle millions
+of requests per second. \textbf{Software load balancing}: software we install on any machine to do
+load balancing.
+
+\paragraph{Networking protocols}
+\textbf{TCP} load balancers just forward the requests to the right machine $\to$ millions of request
+per second. \textbf{HTTP} load balancers can look inside the message and make a decision based on the
+content (e.g. cookie or header).
+
+\paragraph{Load balancing algorithms}
+Round robin sends connection in order to the list of servers. We can also use least connections or
+least response time. We can also use hash-based algorithm.
+
+\paragraph{Domain Name System}
+We need to register our partitioner service in DNS (e.g. part.domain.com). Requests are routed to the
+load balancer, which needs to know the IP adresses of the partioner service machines. Load balancers
+need to know which server is healthy $\to$ \textbf{health check}.
+
+\paragraph{High availability}
+There are primary and secondary load balancers. Primary nodes handle requests, secondary ones monitor
+the primary ones. Secondary takes over in case the primary faces issues. Primary and secondary should
+live in different data centers.
+
+\subsubsection{Partitioner service and partitions}
+\paragraph{Partition strategy}
+We can hash some content of the request to define partitions. But we have to careful about
+\textbf{hot partitions}. This happens when we hash based on unbalanced information, e.g. hash the video
+ID, but some videos are viral. A solution can be to add the datetime of the request to the hashed information.
+Another way is to split the hot partitions into 2 new partitions.
+
+\paragraph{Service discovery}
+\textbf{Server-side} discovery: load balancers do that for the partitioner service client.
+\textbf{Client-side} discovery: the client talks directly to the service registry. This means less
+network hops but the client must have knowledge of the service registry. Service registry may be
+integrated inside the partition nodes, e.g. in Cassandra each node knows about all the other nodes.
+
+\paragraph{Replication}
+Replicate data to avoid losing it. There are multiple approaches: single leader, mutliple leader,
+leaderless. \textbf{Single leader}: 1 leader, many followers. We read and write from the leader.
+Followers replicate data and can take over when leader crashes. Leader monitors followers and update
+the list of followers if needed.
+
+\paragraph{Message formats}
+Message can be textual (e.g. JSON, XML) or binary (e.g. ProtoBuf, Avro). Binary ones are smaller and
+faster to parse. Binary formats can use tags (1, 2, 3) instead of names for fields. Using binary
+messages means sharing the schemas between producers and consumers. Binary formats may not allow for
+insertion of new fields.
+
+\subsection{Data retrieval path}
+For single value, there are not many problems. But for time-series that are ever expanding, storage
+will explode even if we compile per minute. The solution is to rollup the data: 1 minute granularity for
+1 week, 1 hour granularity for 1 month, 1 day granularity for 3 months, ... \\
+Older data can be pushed to an object storage like S3 instead of in the DB. DB is the \textbf{hot storage},
+S3 is the \textbf{cold storage}. We can even introduce a \textbf{distributed cache} to store query results
+and retrieve them.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm]{assets/data-flow.png}
+    \caption{Full data flow path \cite{sys-design-interview-yt}}
+\end{figure}
+
+\subsection{Technology stack}
+\begin{center}
+    \begin{tabular}{ |c|p{10cm}|}
+        \hline
+        Load balancing & Citrix Netscaler (Hardware), NGINX, AWS ELB \\
+        \hline
+        Messaging systems & Apache Kafka, AWS Kinesis \\
+        \hline
+        Data processing & Apache Spark, Apache Flink, AWS Kinesis Data Analytics\\
+        \hline
+        Storage & Apache Cassandra, Apache HBase (time-series), Hadoop, Redshift, S3\\
+        \hline
+    \end{tabular}
+\end{center}
+
+\subsection{Bottlenecks and trade-offs}
+\subsubsection{Identifying bottlenecks with performance testing}
+\begin{table}[!htbp]
+    \begin{tabular}{ |c|p{6cm}|p{6cm}|}
+        \hline
+        Test type & Set up & Learnings \\
+        \hline
+        \hline
+        Load testing &
+        Expose system to typical load &
+        System is scalable  and can handle expected load, up to 2-3x \\
+        \hline
+        Stress testing &
+        Increase load until it starts breaking apart &
+        Which component will start to suffer first, and which resources it will be\\
+        \hline
+        Soak testing &
+        Expose system to continuous load over a long period of time &
+        Find leaks in resources\\
+        \hline
+    \end{tabular}
+    \caption{Types of performance tests}
+\end{table}
+
+\subsubsection{Health monitoring}
+Use metrics, dashboards and alerts. The 4 golden signals of monitoring are: \textbf{latency, traffic,
+errors, and saturation}.
+
+\subsubsection{Making sure the results are accurate}
+We need an audit system, there are 2 types of audit systems. A \textbf{weak} audit system is a
+continuously running E2E test (e,g, every minute perform a E2E test on the running system). This will
+catch most errors, but rare bugs in rare scenarios will be hard to spot. A \textbf{strong} audit system
+will compute results using a completely different path. This reminds of the Lamda architecture where
+we have a stream processing system and a batch processing system in parallel.
+
+\subsubsection{Making sure the load is spread out}
+Use a smart partitioning to avoid having hot partitions.
+
+\subsubsection{Handling too many messages}
+We can batch incoming data and send a message whenever a new batch is ready. We obtain a hybrid system
+between stream processing and batch processing.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm]{assets/system-design-interview.png}
+    \caption{Summary of the systems design interview process\cite{sys-design-interview-yt}}
+\end{figure}
+
+
+

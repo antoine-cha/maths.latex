@@ -35,7 +35,45 @@ $D$ and $G$ are competing so the training objective is
 \end{equation}
 
 Compared to more traditional approaches like PCA, ICA, Fourier or wavelet representations, GANs allow
-for a higher level of complexity. Thus, mappings defined by DNNs can be extraordinarily complex.
+for a higher level of complexity. Thus, mappings defined by DNNs can be extraordinarily complex. \\
+
+\section{GAN upgrades}
+\subsection{DCGAN}
+Architectures improvements for GANs:
+\begin{itemize}
+    \item Replace pooling layers with strided convs (discriminator)
+    \item Use deconvolution (fractionally-strided convolutions)
+    \item Use BN in generator and discriminator
+    \item Remove fully connected layers
+    \item Use ReLU activation in generator except output layers which uses $tanh$
+    \item Use LeakyReLU in the discriminator for all layers
+\end{itemize}
+
+\subsection{Laplacian GAN (LAPGAN)}
+Let $I$ be the input image,\\
+Let $d$ be a downsampling operator that blurs then decimates the image by a factor of 2, \\
+Let $u$ be an upsampling operator that smooths and expands I by a factor of 2, \\
+\begin{align*}
+    &\mathcal{G}(I) = [I_0, ..., I_K]  \quad \text{is a Gaussian pyramid where} \\
+    &I_0 = I \\
+    &I_k = \mathcal{G}_k = d^k(I) \quad \text{($k$ repeated applications)}\\
+    \\
+    &\mathcal{L}(I) = [h_1, ..., h_K]  \quad \text{is the Laplacian pyramid where} \\
+    &h_K = I_K \\
+    &h_k = \mathcal{L}_k = \mathcal{G}_k - u(\mathcal{G}_{k+1}(I)) = I_k - u(I_{k+1}) \\
+\end{align*}
+We can reconstruct the image from a Laplacian pyramid coefficients $[h_1, ..., h_K]$ using
+the backward recurrence
+\begin{equation}
+    I_k = u(I_{k+1}) + h_k
+\end{equation}
+which is started with $I_K = h_K$ and finished with $I = I_0$.
+
+
+\subsection{Cycle GAN}
+\subsection{WGAN}
+
+\subsection{Style GAN}
 
 
 
