@@ -69,15 +69,92 @@ the backward recurrence
 \end{equation}
 which is started with $I_K = h_K$ and finished with $I = I_0$.
 
+\subsection{Metrics for quality of generated samples}
+\subsubsection{Human preference}
+Have human selects the best translation out of 2.
 
-\subsection{Cycle GAN}
+\subsubsection{Inception score (translation accuracy, photrealism)}
+Accuracy of Inception
+
+\subsubsection{Fréchet Inception score (distribution matching)}
+The Wasserstein metric between 2 multidimensional Gaussian distributions:
+\begin{itemize}
+    \item $\mathcal{N}(\mu, \Sigma)$, ditribution of Inception features on generated images
+    \item $\mathcal{N}(\mu_w, \Sigma_w)$, ditribution of Inception features on real images
+\end{itemize}
+\begin{equation}
+    FID = |\mu - \mu_w|^2 + tr(\Sigma + \Sigma_w - 2 (\Sigma\Sigma_w)^{1/2})
+\end{equation}
+
+\subsubsection{Learned Perceptual Image Path Similarity}
+introduced in \cite{unreasonable-deep-metric}. Simply learn a linear layer on top of pre-trained
+model. Distance is computed as the $l_2$ distance between normalized then scaled activations. \\
+It has strong correlation with human judgment.
+
+\subsubsection{Domain-invariant perceptual distance (DPID)}
+$l_2$ distance between 2 normalized VGG Conv5 features, which is more invariant against domain change.
+
+\subsection{Few-shot unsupervised Image-to-Image Translation (FUNIT)}
+Let, \\
+$x$ be the content image of class $c_x$, \\
+$\{y_1, ...\ y_K\}$ a set of target class images of class $c_y$, \\
+\\
+the generated image is $\bar{x} = G(x, \{y_1, ...\ y_K\})$ \\
+the content encoder $E_x$ encodes the content as $E_x(x)$ \\
+the class encoder $E_y$ encodes the target class as $E_y(\{y_1, ...\ y_K\})$ \\
+the decoder $F_x$ generates the image as $\bar{x} = F_x(E_x(x), E_y(\{y_1, ...\ y_K\}))$ \\
+\\
+The optimization problem of FUNIT is
+\begin{equation}
+    \min_G\max_D \mathcal{L}_{GAN}(D, G) + \lambda_R\mathcal{L}_R(G) + \lambda_F\mathcal{L}_{FM}(G)
+\end{equation}
+The discriminator is learnt multi-task, it predicts for each class whether the input is real image of
+the class. For a real image of class $c_x$ its $c_x$th output must
+be 1. For a generated image with target class $c_y$, the discrimator aims at $c_y$th  output being
+0. \\
+\begin{equation}
+    \mathcal{L}_{GAN}(D, G) = E_x[log D^{c_x}(x)] + E_{x, \{y_1, ...\ y_K\}}[log(1-D^{c_y}(\bar{x}))]
+\end{equation}
+
+\paragraph{Content reconstruction loss:} helps G learn a translation model. When using the same
+input content image and target class image, G should generate the input image.
+\begin{equation}
+    \mathcal{L}_R(G) = E_x[||x - G(x, \{x\})||_1]
+\end{equation}
+\paragraph{Feature Matching loss:} regularizes the training. We construct a feature extractor $D_f$
+as D minus its last layer.
+\begin{equation}
+    \mathcal{L}_{FM}(G) = E_{x, \{y_1, ...\ y_K\}}
+        \left[ \big\| D_f(\bar{x}) - \sum_k{\frac{D_f(y_k)}{K}} \big\|_1 \right]
+\end{equation}
+
+\subsection{Adaptative Instance Normalization (AdaIN)}
+For style transfer, the idea is to have the content feature stats match the style feature statistics
+\begin{equation}
+    AdaIn(x_c, x_s) = \sigma(x_s) \left( \frac{x - \mu(x_c)}{\sigma(x_c)} \right) + \mu(x_s)
+\end{equation}
+AdaIN layer is only applied at the end of encoding when both style and content have been encoded.
+
+
+\subsection{Cycle GAN (2017)}
+Compared to Pix2Pix, Cycle GAN removes the need for paired inputs. The idea is to do 2-way generation:
+$G: X \to Y$ and $F: Y \to X$. These are associated with 2 discriminators: $D_X$ and $D_Y$.
+The new consistency loss with $L1$ is
+\begin{equation}
+    \mathcal{L}_{cyc}(G, F) = E_{X\sim p_{data}(x)} \left[ || F(G(x)) - x ||_1\right]
+        + E_{y\sim p_{data}(y)} \left[ || G(F(y)) - y ||_1\right]
+\end{equation}
+
+\subsection{Star GAN (2017)}
+Image-to-image translation for multiple domains (e.g. identity and emotion) using a single network.
+This allows simultaneous training over multiple datasets with different domains.
+
 \subsection{WGAN}
 
 \subsection{Style GAN}
 
 
-
-\section{pix2pix}
+\section{pix2pix (2016)}
 From the paper "Image-to-Image Translation with Conditional Adversarial Networks" \cite{pix-to-pix}.
 Uses conditional GANs to create images from images (image translation).
 
@@ -92,7 +169,8 @@ Generator is U-net, discriminator is PatchNet.
 \subsection{Method}
 Conditional GANs learn a mapping $G: \{x, z\} \rightarrow y$ where $x$ is the observed input and $z$
 is a random noise vector. \\
-\textbf{TODO} understand why conditioning the discriminator is important. \\
+Conditioning the discriminator enforces that the generate sample is generated with a clear target.
+That it is not "just" a real-looking sample, but a \textbf{relevant} sample. \\
 The objective of a cGAN is
 \begin{equation}
     \mathcal{L}_{cGAN}(G, D) = \mathbb{E}_{x,y}[log(D(x,y))] + \mathbb{E}_{x,z}[log(1-D(x, G(x, z)))]
