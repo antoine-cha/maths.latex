@@ -106,6 +106,80 @@ Then, \\
 \subsection{For vectors}
 The law(s) apply to all components $\Longleftrightarrow$ the law(s) apply the vector.
 
+\section{Moment generating function}
+For $X$ a random variable, if $E[e^{xT}]$ exists for $t \in [-h, h], h > 0$,
+then $X$ has a moment generating function:
+\begin{align*}
+    &\text{Definition: }&M_X(t) = E[e^{tX}] \\
+    &\text{Moments generation: }&\frac{d^nM_X(0)}{dt^n} = E[X^n] \\
+\end{align*}
+\subsection{Properties}
+\begin{align*}
+    &\text{Equality of distributions: }& F_X = F_Y \Longleftrightarrow M_X = M_Y \\
+    &\text{Linear transformation: }& Y = a + bX, \, M_Y(t) = e^{at}M_X(bt) \\
+    &\text{Sum of mutually independent variables:}& Z =\sum{X_i}, M_Z(t) = \prod{M_{X_i}(t)}
+\end{align*}
+\subsection{Multivariate}
+Use a vector $t$ and the formula becomes $M_X(t) = E[e^{t^TX}]$. \\
+By differentiating $n_1, \dots, n_N$ times we can obtain the cross-moments.
+
+\section{Characteristic function}
+For $X$ a random variable, the characteristic function always exists.
+\begin{align*}
+    &\text{Definition: }&\varphi_X(t) = E[e^{itX}] \\
+\end{align*}
+\subsection{Deriving moments}
+If $E[X^n]$ exists and is finite, then
+\begin{align*}
+    &\varphi_X(t)\text{is n-times continuously differentiable}\\
+    &\text{and }\mu_X(n) = E[X^n] = \frac{1}{i^n}\frac{d^n\varphi_X(0)}{dt^n}  \\
+\end{align*}
+Knowing whether a moment exists is unusual, so a more useful version is: \\
+\\
+if $\varphi_X(t)$ is n-times differentiable in 0, then
+\begin{itemize}
+    \item if $n$ is \textbf{even}, $\forall k \leq n, E[X^n]\text{ exists and } E[X^n] = \frac{1}{i^n}\frac{d^n\varphi_X(0)}{dt^n} $
+    \item if $n$ is \textbf{odd}, $\forall k < n, E[X^n]\text{ exists and } E[X^n] = \frac{1}{i^n}\frac{d^n\varphi_X(0)}{dt^n} $
+\end{itemize}
+\subsection{Properties}
+\begin{align*}
+    &\text{Equality of distributions: }& F_X = F_Y \Longleftrightarrow \varphi_X = \varphi_Y \\
+    &\text{Linear transformation: }& Y = a + bX, \, \varphi_Y(t) = e^{iat}\varphi_X(bt) \\
+    &\text{Sum of mutually independent variables:}& Z =\sum{X_i}, \varphi_Z(t) = \prod{\varphi_{X_i}(t)}
+\end{align*}
+
+
+\section{Common distributions}
+\subsection{Discrete}
+\begin{center}
+    \begin{tabular}{|c |c |c |c |c|}
+        \hline
+        Name & Density & Mean & Variance & Mom gen func \\
+        \hline
+        Uniform - $U(a, b)$& $\frac{1}{b-a}$ & $\frac{a+b}{2}$ & $\frac{(b-a)^2}{12}$ & $m(t)=\frac{e^{bt} - e^{at}}{t(b-a)}$ \\
+        \hline
+        Bernoulli - $B(p)$ & $f(0)=1-p, f(1)=p$ & $p$ & $p(1-p)$ & $m(t)=pe^t(1-p)$ \\
+        \hline
+        Binomial(n, p) & $f(x) = \binom{n}{x} p^x(1-p^{n-x})$ & $np$ & $np(1-p)$ & $m(t) = (pe^t + 1-p)^n$\\
+        \hline
+    \end{tabular}
+\end{center}
+
+\subsection{Continuous}
+\begin{center}
+    \begin{tabular}{|c |c |c |c |c|}
+        \hline
+        Name & Density & Mean & Variance & Mom gen func \\
+        \hline
+        Uniform & \\
+        \hline
+        Bernoulli & \\
+        \hline
+        Binomial & \\
+        \hline
+        Binomial & \\
+    \end{tabular}
+\end{center}
 
 \section{Confidence interval}
 A confidence interval $CI_{1-\alpha}$ with confidence level $1-\alpha$ of a true parameter $\theta$
@@ -156,7 +230,7 @@ Using Bayes rule $P(\theta | D) = \frac{P(D|\theta)P(\theta)}{P(D)}$,
 so $P(\theta | D) \propto P(D|\theta)P(\theta)$ .
 
 \subsubsection{Maximum likelhood estimation (MLE)}
- The maximum likelihood estimation chooses $\theta$ that maximimizes the probability of observed data:
+The maximum likelihood estimation chooses $\theta$ that maximimizes the probability of observed data:
 \begin{align*}
     \hat{\theta}_{MLE} = arg\,\underset{\theta}{max}\; P(D\,|\, \theta)
 \end{align*}
