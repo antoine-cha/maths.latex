@@ -11,12 +11,6 @@
 A random sample is a collection of $n$ random variables $X_1,\dots, X_n$ that are independent and
 identically distributed with $X$.
 
-\section{Bias}
-The bias of an estimator $\hat{\theta}$ of a parameter $\theta$ is
-\begin{align*}
-    Bias(\hat{\theta}) = E[\hat{\theta}] - \theta
-\end{align*}
-An estimator is said unbiased if $Bias(\hat{\theta}) = 0$ .
 
 \section{Mean}
 The mean is $\mu = E[X]$ . \\
@@ -53,6 +47,32 @@ Let $s^2$ be the sample variance,
 \begin{align*}
     \frac{s^2(n-1)}{\sigma^2} \sim \chi_{n-1}^2
 \end{align*}
+
+\section{Bias}
+The bias of an estimator $\hat{\theta}$ of a parameter $\theta$ is
+\begin{align*}
+    Bias(\hat{\theta}) = E[\hat{\theta}] - \theta
+\end{align*}
+An estimator is said unbiased if $Bias(\hat{\theta}) = 0$ .
+
+\subsection{Bias-Variance trade-off}
+We want to learn a function $h$ such that $y = h(x)$.
+Let \\
+\begin{itemize}
+    \item $\bar{y}(x) = E_{y|x}[y]$, there is always some unknown on whether we can perfectly model $y$ from $x$
+    \item $D$ be a set of pairs $\{(x_1,y_1),\dots,(x_n,y_n)\}$ sampled from $P(x, y)$
+\item $\mathcal{A}$ be a learning algorithm such that $h_D = \mathcal{A}(D)$ and $\bar{h} = E_D[h_D]$
+\end{itemize}
+The expected mean-squared error of our learning algorithm:
+
+\begin{align*}
+    E_{x,y,D}[(y - h_D(x))^2] =
+        {\underbrace{E_{x}[(\bar{h}(x) - \bar{y}(x))^2]}_{\mathclap {Bias^2}}} +
+        {\underbrace{E_{x,D}[(h_D(x) - \bar{h}(x))^2]}_{\mathclap {Variance}}} +
+        {\underbrace{E_{x,y}[(y - \bar{y}(x))^2]}_{\matchclap {Noise}}}
+\end{align*}
+
+
 
 \subsection{Law of total variance}
 Also called variance decomposition formula or conditional variance formulas or law of iterated variances
