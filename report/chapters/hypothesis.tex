@@ -1,0 +1,52 @@
+
+%! TEX root = ../main.tex
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+% ============================================================ %
+% ============================================================ %
+\chapter{Hypothesis testing}
+% ============================================================ %
+% ============================================================ %
+\section{Confidence interval}
+A confidence interval $CI_{1-\alpha}$ with confidence level $1-\alpha$ of a true parameter $\theta$
+such that
+\begin{align*}
+    P(\theta \in CI_{1-\alpha}) = 1 - \alpha
+\end{align*}
+
+\section{Hypothesis testing}
+Let $T$ be the test statistics and $R$ the rejection region.
+A test statistic is a statistic (a quantity derived from the sample) used in statistical hypothesis testing.
+A hypothesis test is typically specified in terms of a test statistic, considered as a numerical summary
+of a dataset that reduces the data to one value that can be used to perform the hypothesis test
+
+\subsection{Type I error}
+The type I error, often noted $\alpha$, also called "false alarm" or significance level is the probability
+of rejecting the null hypothesis when the null hypothesis is true.
+\begin{align*}
+    \alpha = P(T \in R\; |\; H_0\; true)
+\end{align*}
+
+\subsection{Type II error}
+The type II error, often noted $\beta$ also called "missed alarm" is the probability
+of not rejecting the null hypothesis when the null hypothesis is false.
+\begin{align*}
+    \alpha = P(T \notin R\; |\; H_0\; false)
+\end{align*}
+
+\subsection{p-value}
+The $p$-value is the probability under the null hypothesis of a having a test statistic $T$ at
+least as extreme as the one that we observed $T_0$:
+\begin{align*}
+    \text{(left-sided)} \quad & \text{p-value} = P(T \leq T_0\; |\; H_0\; true) \\
+    \text{(right-sided)}\quad & \text{p-value} = P(T \geq T_0\; |\; H_0\; true) \\
+    \text{(two-sided)}  \quad & \text{p-value} = P(|T| \geq |T_0|\; |\; H_0\; true) \\
+\end{align*}
+
+\subsection{Non-parametric test}
+A non-parametric test is a test where we do not have any underlying assumption regarding the
+distribution of the sample.
+
+
+\end{document}
