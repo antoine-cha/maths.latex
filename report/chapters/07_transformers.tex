@@ -1,0 +1,32 @@
+
+%! TEX root = ../main.tex
+\documentclass[../main]{subfiles}
+\insubfile{\AtEndDocument{\bibliography{../biblio}}}
+
+\begin{document}
+\chapter{Transformers}
+% ===================================================== %
+\section{Standard}
+\subsection{Standard}
+Without loss of generality, we will consider that the input MLPs only have one layer,
+and that $q$, $k$ and $v$ have the same dimensions.
+\subsubsection{Definition}
+\begin{description}
+    \item[$X \in \mathbb{R}^{d\times n_s}$] Input sequence
+    \item[$Y \in \mathbb{R}^{d_m \times n_s}$] Output sequence
+    \item[$W_K, W_Q, W_V \in \mathbb{R}^{d \times d_m}$] Weights of the layer
+\end{description}
+
+\begin{align*}
+    Let &                                                                                      \\
+        & q = W_Q X, \quad k = W_K X, \quad v = W_V X                                          \\
+        & A = softmax(\frac{qk^T}{\sqrt{d}}) \quad \highlight[Dandelion]{A \in n_s \times n_s} \\
+        & Y = Av \label{eq:transformer} \tag{1}
+\end{align*}
+
+
+\subsubsection{Gradients}
+
+
+
+\end{document}

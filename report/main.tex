@@ -11,12 +11,14 @@
 \usepackage{graphicx}
 % Formatting
 \usepackage{csquotes}
+\usepackage[usenames,dvipsnames]{xcolor}
 % Structure
 \usepackage{subfiles}
 % Bibliography
 \usepackage{natbib}
 \usepackage{hyperref}
 
+\input{macros.tex}
 
 \title{Machine Learning Engineering Preparation}
 \author{Antoine Chassang}
@@ -44,40 +46,16 @@
     \end{itemize}
 
 \subfile{chapters/01_stats}
-
 \subfile{chapters/02_estimation}
-
 \subfile{chapters/03_hypothesis}
-
 \subfile{chapters/04_optim}
-
 \subfile{chapters/05_ml-design}
-
 \subfile{chapters/06_deep-learning}
-
-\subfile{chapters/07_multi-view-geo}
-
-\subfile{chapters/08_generative-models}
-
-
-\chapter{Transformers}
-    There is a theory which states that if ever anyone discovers exactly what the Universe is for and why it is here, it will instantly disappear and be replaced by something even more bizarre and inexplicable.
-    There is another theory which states that this has already happened.
-    \subsection{Definition}
-    \begin{align*}
-        Let &                                                                    \\
-            & X \in \mathbb{R}^d,                                                \\
-            & Y \in \mathbb{R}^{d_{model}}                                       \\
-            & W_K, W_Q, W_V \in \mathbb{R}^{d \times d_{model}}                  \\
-            & q = W_Q X, \quad k = W_K X, \quad v = W_V X                        \\
-            & Y = softmax(\frac{qk^T}{\sqrt{d}})v \label{eq:transformer} \tag{1}
-    \end{align*}
+\subfile{chapters/07_transformers}
+\subfile{chapters/08_multi-view-geo}
+\subfile{chapters/09_generative-models}
 
 
-    \section{Gradients}
-    Let's compute the gradients analytically to understand how they will flow through a model when
-    transformers blocks are stacked in a deep neural network.
-    We will start from the formulas in \eqref{eq:transformer}
 
 \bibliography{biblio}
 \bibliographystyle{abbrv}
