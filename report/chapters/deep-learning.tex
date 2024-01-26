@@ -1,5 +1,6 @@
 %! TEX root = ../main.tex
-\documentclass[../main.tex]{subfiles}
+\documentclass[../main]{subfiles}
+\insubfile{\AtEndDocument{\bibliography{../biblio}}}
 \begin{document}
 
 % ============================================================ %
@@ -20,12 +21,12 @@ To achieve that goal, there are 2 main ways to regularize the model:
 \begin{itemize}
     \item L1 regularization for layer $h$: $\sum_{i=1}^{B} | a^{(h)}(x_i)|$
     \item KL divergence on the average activation of 1 neuron over a batch:
-    \begin{itemize}
-        \item Average activation: $\hat{\rho}_j = \frac{1}{B}\sum_{i=1}^{B} a_j^{(h)}(x_i)$
-        \item Target: Bernoulli distribution with $p=\rho$ (neurons should fire in average with $p=\rho$)
-    \end{itemize}
-        $\mathcal{L}_{KL} = \sum_{j} KL(\rho || \hat{\rho}_j) = \sum_j \rho log \frac{\rho}{\hat{\rho}_j} +
-    (1 - \rho) log \frac{(1 - \rho)}{(1 - \hat{\rho}_j)}$   \end{itemize}
+          \begin{itemize}
+              \item Average activation: $\hat{\rho}_j = \frac{1}{B}\sum_{i=1}^{B} a_j^{(h)}(x_i)$
+              \item Target: Bernoulli distribution with $p=\rho$ (neurons should fire in average with $p=\rho$)
+          \end{itemize}
+          $\mathcal{L}_{KL} = \sum_{j} KL(\rho || \hat{\rho}_j) = \sum_j \rho log \frac{\rho}{\hat{\rho}_j} +
+              (1 - \rho) log \frac{(1 - \rho)}{(1 - \hat{\rho}_j)}$
 \end{itemize}
 
 \subsection{Denoising autoencoders}
@@ -33,12 +34,12 @@ Add noise to the input data, but the output should be the data without noise. \\
 With this approach, we prevent the model from memorizing the input, and instead focus on the distribution of the data.
 
 \subsection{Contractive autoencoders}
-\textbf{Idea:} similar inputs should yield similar encodings. \\
-Train the encoder so that the derivative of hidden layers with respect to the input are small. \\
+\textbf{Idea:} Similar inputs should yield similar encodings. \\
+Train the encoder so that the derivative of hidden layers with respect to the input are small.
 From \cite{what-regularized-autoencoders-learn}: \\
 \blockquote{
- denoising autoencoders make the \textbf{reconstruction function (ie. decoder)} resist small but ﬁnite-sized perturbations of the input, \\
-while contractive autoencoders make the \textbf{feature extraction function (ie. encoder)} resist infinitesimal perturbations of the input.
+    denoising autoencoders make the \textbf{reconstruction function (ie. decoder)} resist small but ﬁnite-sized perturbations of the input, \\
+    while contractive autoencoders make the \textbf{feature extraction function (ie. encoder)} resist infinitesimal perturbations of the input.
 } (emphasis mine).
 
 \end{document}

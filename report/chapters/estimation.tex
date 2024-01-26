@@ -34,40 +34,40 @@ The maximum likelihood estimation chooses $\theta$ that maximimizes the probabil
 
 \subsubsection{Maximum a posteriori estimation (MAP)}
 The MAP estimation chooses $\theta$ that is most probable given observed data $D$ and prior belief
-$P(\theta)$. \\
+$P(\theta)$.
 
 \begin{align*}
-    \hat{\theta}_{MAP} & = arg\,\underset{\theta}{max}\; P(\theta | D) \\
+    \hat{\theta}_{MAP} & = arg\,\underset{\theta}{max}\; P(\theta | D)           \\
                        & = arg\,\underset{\theta}{max}\; P(D | \theta) P(\theta) \\
 \end{align*}
 
 \section{Bias-Variance trade-off}
 We want to learn a function $h$ such that $y = h(x)$.
-Let \\
+Let
 \begin{itemize}
     \item $\bar{y}(x) = E_{y|x}[y]$, there is always some unknown on whether we can perfectly model $y$ from $x$
     \item $D$ be a set of pairs $\{(x_1,y_1),\dots,(x_n,y_n)\}$ sampled from $P(x, y)$
-\item $\mathcal{A}$ be a learning algorithm such that $h_D = \mathcal{A}(D)$ and $\bar{h} = E_D[h_D]$
+    \item $\mathcal{A}$ be a learning algorithm such that $h_D = \mathcal{A}(D)$ and $\bar{h} = E_D[h_D]$
 \end{itemize}
 The expected mean-squared error of our learning algorithm:
 
 \begin{align*}
     E_{x,y,D}[(y - h_D(x))^2] =
-        {\underbrace{E_{x}[(\bar{h}(x) - \bar{y}(x))^2]}_{\mathclap {Bias^2}}} +
-        {\underbrace{E_{x,D}[(h_D(x) - \bar{h}(x))^2]}_{\mathclap {Variance}}} +
-        {\underbrace{E_{x,y}[(y - \bar{y}(x))^2]}_{\matchclap {Noise}}}
+    {\underbrace{E_{x}[(\bar{h}(x) - \bar{y}(x))^2]}_{\mathclap{Bias^2}}} + \\
+    {\underbrace{E_{x,D}[(h_D(x) - \bar{h}(x))^2]}_{\mathclap{Variance}}} +
+    {\underbrace{E_{x,y}[(y - \bar{y}(x))^2]}_{\mathclap{Noise}}}
 \end{align*}
 
 \section{Markov chains}
 
 A \textbf{stochastic process} $X = \{X(t): t \in T\}$ is a collection of random variables. $X(t)$ is
-called the \textbf{state} of the process at $t$. \\
+called the \textbf{state} of the process at $t$.
 
 A discrete time process $X = \{X(t): t \in \mathbb{N}\}$ is called a \textbf{Markov chain}
 $\Leftrightarrow$
 \begin{align*}
-    & P(X_t=a_T | X_{t-1} = a_{t-1}, ..., X_0 = a_0) = P(X_t = a_t | X_{t-1} = a_{t-1}) \\
-    & \forall t \in \mathbb{N}^*, \quad \forall a_i \in A \\
+     & P(X_t=a_T | X_{t-1} = a_{t-1}, ..., X_0 = a_0) = P(X_t = a_t | X_{t-1} = a_{t-1}) \\
+     & \forall t \in \mathbb{N}^*, \quad \forall a_i \in A                               \\
 \end{align*}
 A Markov chain is called \textbf{homogeneous} $\Leftrightarrow$ its transition probabilities are
 independent of $t$
@@ -79,16 +79,16 @@ In such a case, we can determine the transition matrix
 \begin{align*}
     P = (P_{i, j}) =
     \begin{bmatrix}
-        P_{0,0}  & P_{0,1} & ...\\
-        P_{1, 0} & P_{1,1} & ...\\
-        ...      & ...     & ...\\
+        P_{0,0}  & P_{0,1} & ... \\
+        P_{1, 0} & P_{1,1} & ... \\
+        ...      & ...     & ... \\
     \end{bmatrix}
 \end{align*}
 
 We define the \textbf{m-step transition probability} as
 \begin{align*}
-    &P^n_{i,j} = P(X_{t+n} = a_j | X_{t} = a_i) \\
-    &(P^n_{i, j}) = P^n
+     & P^n_{i,j} = P(X_{t+n} = a_j | X_{t} = a_i) \\
+     & (P^n_{i, j}) = P^n
 \end{align*}
 
 \section{Stationarity}
@@ -96,8 +96,8 @@ Let $\{ X_t \}$ be a stochastic process, \\
 let $F_X(x_{t_1}, ..., x_{t_n})$ represent the cumulative distribution function \\
 $\{ X_t \}$ is said to be \textbf{strictly stationary, strongly stationary or strict-sense stationary if}
 \begin{align*}
-    &F_X(x_{t_1+\tau}, ..., x_{t_n+\tau}) = F_X(x_{t_1}, ..., x_{t_n}) \\
-    &\forall \tau, t_1, ..., t_n \in \mathbb{R}, \forall n \in \mathbb{N}
+     & F_X(x_{t_1+\tau}, ..., x_{t_n+\tau}) = F_X(x_{t_1}, ..., x_{t_n})    \\
+     & \forall \tau, t_1, ..., t_n \in \mathbb{R}, \forall n \in \mathbb{N}
 \end{align*}
 
 \section{Karush-Kuhn-Tucher (KKT) conditions}

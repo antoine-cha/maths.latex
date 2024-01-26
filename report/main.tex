@@ -1,14 +1,21 @@
 \documentclass{report}
 
 \usepackage[utf8]{inputenc}
+% Maths packages
 \usepackage{amsfonts}
 \usepackage{amsmath}
+\usepackage{mathtools}
+% Graphics packages
 \usepackage[all]{xy}
 \usepackage[pdf]{graphviz}
-\usepackage{csquotes}
-\usepackage{subfiles}
-\usepackage{natbib}
 \usepackage{graphicx}
+% Formatting
+\usepackage{csquotes}
+% Structure
+\usepackage{subfiles}
+% Bibliography
+\usepackage{natbib}
+\usepackage{hyperref}
 
 
 \title{Machine Learning Engineering Preparation}
@@ -17,82 +24,59 @@
 
 
 \begin{document}
-
 \maketitle
 \tableofcontents
-
 % ============================================================ %
 % ============================================================ %
 \chapter{Introduction}
 % ============================================================ %
 % ============================================================ %
-\section{Roadmap}
-Topics to study:
-\begin{itemize}
-    \item ML systems design: principles, challenges, example questions
-    \item ML basics: statistical estimation, operations, loss functions
-    \item Deep learning: Pix2Pix, image segmentation, GANs
-    \item Computer vision: transformation metrics, multiple view geometry
-    \item Code: Python, PyTorch, Numpy, ML systems
-    \item Data structures and algorithms
-    \item Personal interview: why me? why the company?
-\end{itemize}
+    \section{Roadmap}
+    Topics to study:
+    \begin{itemize}
+        \item ML systems design: principles, challenges, example questions
+        \item ML basics: statistical estimation, operations, loss functions
+        \item Deep learning: Pix2Pix, image segmentation, GANs
+        \item Computer vision: transformation metrics, multiple view geometry
+        \item Code: Python, PyTorch, Numpy, ML systems
+        \item Data structures and algorithms
+        \item Personal interview: why me? why the company?
+    \end{itemize}
 
-% ============================================================ %
-% ============================================================ %
 \subfile{chapters/stats}
 
-% ============================================================ %
-% ============================================================ %
 \subfile{chapters/estimation}
 
-% ============================================================ %
-% ============================================================ %
 \subfile{chapters/hypothesis}
 
-% ============================================================ %
-% ============================================================ %
 \subfile{chapters/optim}
 
-% ============================================================ %
-% ============================================================ %
 \subfile{chapters/ml-design}
 
-% ============================================================ %
-% ============================================================ %
 \subfile{chapters/multi-view-geo}
 
-% ============================================================ %
-% ============================================================ %
 \subfile{chapters/generative-models}
 
-% ============================================================ %
-% ============================================================ %
 \subfile{chapters/deep-learning}
 
-
-% ============================================================ %
-% ============================================================ %
 \chapter{Transformers}
-% ============================================================ %
-% ============================================================ %
-There is a theory which states that if ever anyonek discovers exactly what the Universe is for and why it is here, it will instantly disappear and be replaced by something even more bizarre and inexplicable.
-There is another theory which states that this has already happened.
-\subsection{Definition}
-\begin{align*}
-    Let &\\
-        &X \in \mathbb{R}^d, \\
-        &Y \in \mathbb{R}^{d_{model}} \\
-        &W_K, W_Q, W_V \in \mathbb{R}^{d \times d_{model}} \\
-        &q = W_Q X, \quad k = W_K X, \quad v = W_V X \\
-        &Y = softmax(\frac{qk^T}{\sqrt{d}})v \label{eq:transformer} \tag{1}
-\end{align*}
+    There is a theory which states that if ever anyone discovers exactly what the Universe is for and why it is here, it will instantly disappear and be replaced by something even more bizarre and inexplicable.
+    There is another theory which states that this has already happened.
+    \subsection{Definition}
+    \begin{align*}
+        Let &                                                                    \\
+            & X \in \mathbb{R}^d,                                                \\
+            & Y \in \mathbb{R}^{d_{model}}                                       \\
+            & W_K, W_Q, W_V \in \mathbb{R}^{d \times d_{model}}                  \\
+            & q = W_Q X, \quad k = W_K X, \quad v = W_V X                        \\
+            & Y = softmax(\frac{qk^T}{\sqrt{d}})v \label{eq:transformer} \tag{1}
+    \end{align*}
 
 
-\section{Gradients}
-Let's compute the gradients analytically to understand how they will flow through a model when
-transformers blocks are stacked in a deep neural network.
-We will start from the formulas in \eqref{eq:transformer}
+    \section{Gradients}
+    Let's compute the gradients analytically to understand how they will flow through a model when
+    transformers blocks are stacked in a deep neural network.
+    We will start from the formulas in \eqref{eq:transformer}
 
 \bibliography{biblio}
 \bibliographystyle{abbrv}
